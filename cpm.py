@@ -31,7 +31,7 @@ def clear():
 
 
 def menu():
-    print('(1) Open Passwords List')
+    print('(1) Open Entries List')
     print('(2) Add New Entry')
     print('(3) Options')
     print('(4) Exit\n')
@@ -67,10 +67,16 @@ def decrypt(data, key):
 
 
 def login():
+    clear()
+    print(logo)
     if os.path.exists('base.pwd'):
-        clear()
-        print(logo)
-        key = bytes(getpass('You password: '), encoding="UTF-8")
+        try:
+            key = bytes(getpass('You Super Password: '), encoding="UTF-8")
+            file = open('base.pwd', 'rb').read()
+            decrypt(file, key).decode('utf-8')
+        except:
+            print('Oops, try again!')
+            login()
         clear()
         print(logo)
         menu()
@@ -81,22 +87,18 @@ def login():
             confirm = bytes(getpass('Confirm password: '), encoding="UTF-8")
             if key == confirm:
                 clear()
-                time.sleep(2)
                 with open('base.pwd', 'wb') as f:
                     data = bytes('cPassMan {3}{0:^24} {1:^24} {2:^24} {3}{4:-<24} {4:-<24} {4:-<24} {3}'.format('Login', 'Password', 'Service', '\n', '-'), encoding="UTF-8")
                     cdata = encrypt(data, key)
                     f.write(cdata)
                     f.close()
-                    time.sleep(1)
                     print('\nPasswords database successfully created and encrypted with Super Password\n')
                 print(logo)
                 menu()
                 main(key)
                 break
             else:
-                clear()
-                print('Wrong password!')
-                clear()
+                print('Oops, try again!')
 
 
 def main(key):
@@ -113,7 +115,7 @@ https://github.com/m80b33\n\n\nBye!\n''')
 
         elif k == '3':
             try:
-                print('(1) Change SuperPassword.\n(2) Open base file with text editor(not safe!).')
+                print('(1) Change Super Password.\n(2) Open base file with text editor(not safe!).')
                 while True:
                     i = input('\n> ')
                     if i == '2':
@@ -129,9 +131,9 @@ https://github.com/m80b33\n\n\nBye!\n''')
                         file = open('base.pwd', 'rb').read()
                         data = decrypt(file, key)
                         while True:
-                            okey = bytes(getpass('Old SuperPassword: '), encoding="UTF-8")
-                            nkey = bytes(getpass('New SuperPassword: '), encoding="UTF-8")
-                            confirm = bytes(getpass('Confirm new SuperPassword: '), encoding="UTF-8")
+                            okey = bytes(getpass('Old Super Password: '), encoding="UTF-8")
+                            nkey = bytes(getpass('New Super Password: '), encoding="UTF-8")
+                            confirm = bytes(getpass('Confirm new Super Password: '), encoding="UTF-8")
                             if okey == key:
                                 if nkey == confirm:
                                     clear()
@@ -140,12 +142,12 @@ https://github.com/m80b33\n\n\nBye!\n''')
                                         cdata = encrypt(data, key)
                                         f.write(cdata)
                                         f.close()
-                                        print('\nSuperPassword successfully changed!\n')
+                                        print('\nSuper Password successfully changed!\n')
                                     break
                                 else:
-                                    print('New SuperPassword not confirmed!')
+                                    print('New Super Password not confirmed!')
                             else:
-                                print('Wrong Old SuperPassword!')
+                                print('Wrong Old Super Password!')
                         clear()
                         print(logo)
                         menu()
@@ -182,7 +184,6 @@ https://github.com/m80b33\n\n\nBye!\n''')
                         try:
                             if int(length) <= 24:
                                 p = pwgen(int(length))
-                                print('Done!')
                                 data = bytes(d + '{0:<24} {1:<24} {2:<24}\n'.format(l, p, s), encoding='UTF-8')
                                 cdata = encrypt(data, key)
                                 with open('base.pwd', 'wb') as f:
@@ -222,6 +223,4 @@ https://github.com/m80b33\n\n\nBye!\n''')
 
 
 if __name__ == '__main__':
-    clear()
-    print(logo)
     login()
