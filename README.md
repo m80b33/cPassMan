@@ -1,3 +1,3 @@
 # cPassMan
 
-Unsave console pasword manager.
+Console pasword manager.
