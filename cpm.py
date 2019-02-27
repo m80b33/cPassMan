@@ -132,9 +132,9 @@ https://github.com/m80b33\n\n\nBye!\n''')
                         data = decrypt(file, key)
                         while True:
                             okey = bytes(getpass('Old Super Password: '), encoding="UTF-8")
-                            nkey = bytes(getpass('New Super Password: '), encoding="UTF-8")
-                            confirm = bytes(getpass('Confirm new Super Password: '), encoding="UTF-8")
-                            if okey == key:
+                            if okey == key:                                
+                                nkey = bytes(getpass('New Super Password: '), encoding="UTF-8")
+                                confirm = bytes(getpass('Confirm new Super Password: '), encoding="UTF-8")
                                 if nkey == confirm:
                                     clear()
                                     key = nkey
