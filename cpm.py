@@ -1,8 +1,14 @@
-# cPassMan v1.0
+# cPassMan v2.0
 # Password manager
-# autor m80b33
+# autor https://github.com/m80b33
 
 import os, time, re, random, string
+from getpass import getpass
+
+from Crypto import Random
+from Crypto.Cipher import AES
+from Crypto.Hash import SHA256
+
 
 os.system('title ' + 'cPassMan')
 
@@ -26,13 +32,9 @@ def clear():
 
 def menu():
     print('(1) Open Passwords List')
-    print('(2) Add New Password')
+    print('(2) Add New Entry')
     print('(3) Options')
     print('(4) Exit\n')
-
-clear()
-print(logo)
-menu()
 
 
 def pwgen(length):
@@ -44,103 +46,182 @@ def pwgen(length):
     return ''.join(w)
 
 
-def basecrt():
-    if not os.path.exists('base.pwd'):
-        with open('base.pwd', 'w') as f:
-            f.write('{0:^24} {1:^24} {2:^24} {3}'.format('Login', 'Password', 'Service', '\n'))
-            f.write('{0:-<24} {0:-<24} {0:-<24} {1}'.format('-','\n'))
-        print('\nPasswords database successfully created!\n')
+def pad(s):
+    return s + b"\0" * (AES.block_size - len(s) % AES.block_size)
 
+
+def encrypt(data, key):
+    key = SHA256.new(key).digest()
+    data = pad(data)
+    iv = Random.new().read(AES.block_size)
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+    return iv + cipher.encrypt(data)
+
+
+def decrypt(data, key):
+    key = SHA256.new(key).digest()
+    iv = data[:AES.block_size]
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+    p = cipher.decrypt(data[AES.block_size:])
+    return p.rstrip(b"\0")
+
+
+def login():
+    if os.path.exists('base.pwd'):
+        clear()
+        print(logo)
+        key = bytes(getpass('You password: '), encoding="UTF-8")
+        clear()
+        print(logo)
+        menu()
+        main(key)
     else:
-        print('\nPasswords database already exists!\n')
+        while True:
+            key = bytes(getpass('New base will be create!\nYour password: '), encoding="UTF-8")
+            confirm = bytes(getpass('Confirm password: '), encoding="UTF-8")
+            if key == confirm:
+                clear()
+                time.sleep(2)
+                with open('base.pwd', 'wb') as f:
+                    data = bytes('cPassMan {3}{0:^24} {1:^24} {2:^24} {3}{4:-<24} {4:-<24} {4:-<24} {3}'.format('Login', 'Password', 'Service', '\n', '-'), encoding="UTF-8")
+                    cdata = encrypt(data, key)
+                    f.write(cdata)
+                    f.close()
+                    time.sleep(1)
+                    print('\nPasswords database successfully created and encrypted with Super Password\n')
+                print(logo)
+                menu()
+                main(key)
+                break
+            else:
+                clear()
+                print('Wrong password!')
+                clear()
 
 
-def main():
+def main(key):
     while True:
         k = input('> ')
-
         if k == '4':
             clear()
-            print('''cPassMan v1.0
+            print('''cPassMan v2.0
 console Password manager
-https://github.com/hatingman\n\n\nBye!\n''')
+https://github.com/m80b33\n\n\nBye!\n''')
             time.sleep(5)
             clear()
             break
 
         elif k == '3':
-            print('(1) First Start. Create new base file.\n(2) Open base file with text editor.')
-            i = input('\n> ')
-
-            if i == '2':
-                os.system('notepad base.pwd')
-                clear()
-                print(logo)
-                menu()
-
-            elif i == '1':
-                basecrt()
-                clear()
-                print(logo)
-                menu()
-
-            else:
-                print('\nInvalid choice!\n')
-
-        elif k == '2':
             try:
-                with open('base.pwd', 'a') as f:
-                    clear()
-
-                    s = input('\nTo which service credentials: ' )
-                    l = input('Login: ' )
-                    p = ''
-                    i = input('Do you want to (c)reate your own password or you need help to (g)enerate it?\n(c/g)?: ' )
-
-                    if i == 'c':
-                        p = input('Password: ' )
-                    elif i == 'g':
-                        while True:
-                            length = input('Enter the password length(24 or less): ' )
-                            try:
-                                if int(length) <= 24:
-                                    p = pwgen(int(length))
-                                    print('Done!')
-                                    break
-                                else:
-                                    print('\nInvalid password length!\n')
-                            except:
-                                print('\nInvalid password length!\n')
-
-                    else:
-                        print('\nInvalid choice, try again!\n')
+                print('(1) Change SuperPassword.\n(2) Open base file with text editor(not safe!).')
+                while True:
+                    i = input('\n> ')
+                    if i == '2':
+                        file = open('base.pwd', 'rb').read()
+                        data = decrypt(file, key).decode('utf-8')
+                        tmp = open('tmp', 'w').write(data)
+                        os.system('notepad tmp && del tmp')
                         clear()
                         print(logo)
                         menu()
+                        break
+                    elif i == '1':
+                        file = open('base.pwd', 'rb').read()
+                        data = decrypt(file, key)
+                        while True:
+                            okey = bytes(getpass('Old SuperPassword: '), encoding="UTF-8")
+                            nkey = bytes(getpass('New SuperPassword: '), encoding="UTF-8")
+                            confirm = bytes(getpass('Confirm new SuperPassword: '), encoding="UTF-8")
+                            if okey == key:
+                                if nkey == confirm:
+                                    clear()
+                                    key = nkey
+                                    with open('base.pwd', 'wb') as f:
+                                        cdata = encrypt(data, key)
+                                        f.write(cdata)
+                                        f.close()
+                                        print('\nSuperPassword successfully changed!\n')
+                                    break
+                                else:
+                                    print('New SuperPassword not confirmed!')
+                            else:
+                                print('Wrong Old SuperPassword!')
+                        clear()
+                        print(logo)
+                        menu()
+                        break
+                    else:
+                        print('\nInvalid choice!\n')
+            except:
+                 print('\nWrong Super Password!\n')
+                 login()
 
-                    f.write('{0:<24} {1:<24} {2:<24}\n'.format(l, p, s))
-                    f.close()
-                    print('Data recorded!')
+        elif k == '2':
+            try:
+                file = open('base.pwd', 'rb').read()
+                d = decrypt(file, key).decode('utf-8')
+                clear()
+                s = input('\nTo which service credentials: ' )
+                l = input('Login: ' )
+                p = ''
+                i = input('Do you want to (c)reate your own password or you need help to (g)enerate it?\n(c/g)?: ' )
+                if i == 'c':
+                    p = input('Password: ' )
+                    data = bytes(d + '{0:<24} {1:<24} {2:<24}\n'.format(l, p, s), encoding='UTF-8')
+                    cdata = encrypt(data, key)
+                    with open('base.pwd', 'wb') as f:
+                        f.write(cdata)
+                        f.close()
+                        print('Data recorded!')
+                    clear()
+                    print(logo)
+                    menu()
+                elif i == 'g':
+                    while True:
+                        length = input('Enter the password length(24 or less): ' )
+                        try:
+                            if int(length) <= 24:
+                                p = pwgen(int(length))
+                                print('Done!')
+                                data = bytes(d + '{0:<24} {1:<24} {2:<24}\n'.format(l, p, s), encoding='UTF-8')
+                                cdata = encrypt(data, key)
+                                with open('base.pwd', 'wb') as f:
+                                    f.write(cdata)
+                                    f.close()
+                                    print('Data recorded!')
+                                clear()
+                                print(logo)
+                                menu()
+                                break
+                            else:
+                                print('\nInvalid password length!\n')
+                        except:
+                            print('\nInvalid password length!\n')
+                else:
+                    print('\nInvalid choice, try again!\n')
                     clear()
                     print(logo)
                     menu()
             except:
-                print('\nThere are no base.pwd file in a folder. \nIf you want to create new base file choose (1) in main manu!\n')
-                menu()
+                print('\nWrong Super Password!\n')
+                login()
 
         elif k == '1':
             try:
                 clear()
-                f = open('base.pwd', 'r')
-                print('\n' + f.read() + '\n')
+                file = open('base.pwd', 'rb').read()
+                data = decrypt(file, key)
+                print('\n' + data.decode('utf-8') + '\n')
                 menu()
             except:
-                print('\nThere are no base.pwd file in a folder. \nIf you want to create new base file choose (3) in main manu!\n')
-                menu()
+                print('\nWrong Super Password!\n')
+                login()
 
         else:
             print('\nInvalid choice, try again!\n')
 
 
 if __name__ == '__main__':
-    main()
+    clear()
+    print(logo)
+    login()
