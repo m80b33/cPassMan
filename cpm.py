@@ -1,4 +1,4 @@
-# cPassMan v3.0
+# cPassMan v1.3
 # Password manager
 # autor https://github.com/m80b33
 
@@ -102,7 +102,7 @@ def job(key):
         k = input(':> ')
         if k == '4':
             logo()
-            cprint('''        cPassMan v3.0
+            cprint('''        cPassMan v1.3
         console Password manager
         https://github.com/m80b33\n
                                    2020\n''', 'blue')
