@@ -1,7 +1,7 @@
 v3.0
 
  - new theme
- - base backup function
+ - backup function
  - code optimisation
 
 
