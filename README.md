@@ -1,10 +1,10 @@
-v3.0
+v1.3
 
  - new theme
  - backup function
  - code optimisation
 
 
-v2.0
+v1.2
 
 Now data in base.pwd is encrypting.
