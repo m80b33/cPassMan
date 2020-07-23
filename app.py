@@ -1,4 +1,3 @@
-# cPassMan v1.3
 # Password manager
 # autor https://github.com/m80b33
 
