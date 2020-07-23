@@ -8,6 +8,7 @@ from time import sleep
 from datetime import datetime
 from getpass import getpass
 from termcolor import cprint
+from sys import platform
 
 from Crypto import Random
 from Crypto.Cipher import AES
@@ -16,13 +17,30 @@ from Crypto.Hash import SHA256
 
 
 # Windows title
-os.system('title ' + 'cPassMan')
+if platform == 'win32':
+    os.system('title ' + 'cPassMan')
+    BASEDIR = os.path.expanduser("~")
+    BACKUPDIR = BASEDIR + '\\PWDBACKUP'
+elif platform == 'linux':
+    BASEDIR = os.path.expanduser("~")
+    BACKUPDIR = BASEDIR + '/PWDBACKUP'
 
+BASEFILE = os.path.join(BASEDIR, 'base.pwd')
+
+try:
+    os.system(f'mkdir {BACKUPDIR}')
+except:
+    cprint('Cant create \'PWDBACKUP\' dir!', 'red')
+
+BACKUPFILE = os.path.join(BACKUPDIR, 'base{}'.format(datetime.now().strftime("%H%M%d%m%y")))
 
 #Logo
 def logo():
     sleep(0.5)
-    os.system('cls')
+    if platform == 'win32':
+        os.system('cls')
+    elif platform == 'linux':
+        os.system('clear')
     cprint(r'''
 
 █▀▀ ▒█▀▀█ █▀▀█ █▀▀ █▀▀ ▒█▀▄▀█ █▀▀█ █▀▀▄
@@ -91,7 +109,7 @@ def getkey():
 # Playing with base file
 def baf(data, key):
     cdata = encrypt(data, key)
-    with open('base.pwd', 'wb') as f:
+    with open(BASEFILE, 'wb') as f:
         f.write(cdata)
         f.close()
 
@@ -122,7 +140,7 @@ def job(key):
                         while True:
                             fp = input(':> ')
                             if os.path.exists(fp):
-                                os.system('copy /Y {} base.pwd'.format(fp))
+                                os.system(f'copy /Y {fp} {BASEFILE}')
                                 logo()
                                 cprint('The database file is recovered!', 'green', attrs=['bold'])
                                 cprint('The super password from the recovered database may not match the one entered earlier.', 'green', attrs=['bold'])
@@ -131,24 +149,24 @@ def job(key):
                             else:
                                 cprint('The path to the file or it name is incorrect!', 'red')
                     elif i == '4':
-                        dirname = 'C:\\PWDBBack\\'
-                        filename = '{}base{}'.format(dirname, datetime.now().strftime("%H%M%d%m%y"))
-                        try:
-                            os.system('mkdir {}'.format(dirname))
-                        except:
-                            pass
-                        os.system('copy base.pwd {}'.format(filename))
+                        if platform == 'win32':
+                            os.system(f'copy {BASEFILE} {BACKUPFILE}')
+                        elif platform == 'linux':
+                            os.system(f'cp {BASEFILE} {BACKUPFILE}')
                         logo()
-                        cprint('Database backup is written to the {} file!\n'.format(filename), 'green', attrs=['bold'])
+                        cprint(f'Backup is created!\n', 'green', attrs=['bold'])
                     elif i == '3':
-                        file = open('base.pwd', 'rb').read()
+                        file = open(BASEFILE, 'rb').read()
                         data = decrypt(file, key).decode('utf-8')
                         tmp = open('tmp', 'w').write(data)
-                        os.system('notepad tmp && del tmp')
+                        if platform == 'win32':
+                            os.system('notepad tmp && del tmp')
+                        else:
+                            os.system('nano tmp && del tmp')
                         logo()
                         cprint('Done!\n', 'green', attrs=['bold'])
                     elif i == '2':
-                        file = open('base.pwd', 'rb').read()
+                        file = open(BASEFILE, 'rb').read()
                         data = decrypt(file, key)
                         while True:
                             logo()
@@ -177,7 +195,7 @@ def job(key):
                  main()
         elif k == '2':
             try:
-                file = open('base.pwd', 'rb').read()
+                file = open(BASEFILE, 'rb').read()
                 d = decrypt(file, key).decode('utf-8')
                 logo()
                 dn = datetime.now().strftime("%d.%m.%y")
@@ -221,7 +239,7 @@ def job(key):
         elif k == '1':
             try:
                 logo()
-                file = open('base.pwd', 'rb').read()
+                file = open(BASEFILE, 'rb').read()
                 data = decrypt(file, key)
                 cprint('\n' + data.decode('utf-8') + '\n', 'white')
                 cprint(':> Back to main Manu(1)\n', 'yellow')
@@ -243,10 +261,10 @@ def job(key):
 
 # Main
 def main():
-    if os.path.exists('base.pwd'):
+    if os.path.exists(BASEFILE):
         try:
             key = getkey()
-            file = open('base.pwd', 'rb').read()
+            file = open(BASEFILE, 'rb').read()
             decrypt(file, key).decode('utf-8')
         except:
             cprint('Oops, try again!', 'red')
