@@ -26,10 +26,11 @@ elif platform == 'linux':
 
 BASEFILE = os.path.join(BASEDIR, 'base.pwd')
 
-try:
-    os.system(f'mkdir {BACKUPDIR}')
-except:
-    cprint('Cant create \'PWDBACKUP\' dir!', 'red')
+if not os.path.exists(BACKUPDIR):
+    try:
+        os.system(f'mkdir {BACKUPDIR}')
+    except:
+        cprint('Cant create \'PWDBACKUP\' dir!', 'red')
 
 BACKUPFILE = os.path.join(BACKUPDIR, 'base{}'.format(datetime.now().strftime("%H%M%d%m%y")))
 
@@ -56,9 +57,9 @@ def progress():
     l = len(items)
     for i, item in enumerate(items):
         sleep(0.02)
-        filledLength = int(r * (i + 1) // l)
-        bar = '█' * filledLength + ' ' * (r - filledLength)
-        print('\r%s' % (bar), end = '\r')
+        filled = int(r * (i + 1) // l)
+        bar = '█' * filled + ' ' * (r - filled)
+        print(f'\r{bar}', end = '\r')
 
 
 # Menu
