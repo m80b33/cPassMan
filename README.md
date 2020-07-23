@@ -2,18 +2,20 @@ Console Password Manager
 ========================
 
 
-v0.31
+#Сhanges:
 
-  - should work on linux (but not tested yet)
+  v0.31
 
-
-v0.3
-
-  - new theme
-  - backup function
-  - code optimisation
+    - should work on linux (but not tested yet)
 
 
-v0.2
+  v0.3
 
-  - Now data in base.pwd is encrypting.
+    - new theme
+    - backup function
+    - code optimisation
+
+
+  v0.2
+
+    - Now data in base.pwd is encrypting.
