@@ -137,24 +137,23 @@ def job(key):
                     if i == '5':
                         logo()
                         cprint('Enter the full path to the backup file\n', 'yellow')
-                        while True:
-                            fp = input(':> ')
-                            if os.path.exists(fp):
-                                os.system(f'copy /Y {fp} {BASEFILE}')
-                                logo()
-                                cprint('The database file is recovered!', 'green', attrs=['bold'])
-                                cprint('The super password from the recovered database may not match the one entered earlier.', 'green', attrs=['bold'])
-                                cprint('Make sure you remember it!\n', 'red', attrs=['bold'])
-                                break
-                            else:
-                                cprint('The path to the file or it name is incorrect!', 'red')
+                        fp = input(':> ')
+                        if os.path.exists(fp):
+                            os.system(f'copy /Y {fp} {BASEFILE}')
+                            logo()
+                            cprint('The database file is recovered!', 'green', attrs=['bold'])
+                            cprint('The super password from the recovered database may not match the one entered earlier.', 'green', attrs=['bold'])
+                            cprint('Make sure you remember it!\n', 'red', attrs=['bold'])
+                        else:
+                            logo()
+                            cprint('The path to the file or it name is incorrect!', 'red')
                     elif i == '4':
                         if platform == 'win32':
                             os.system(f'copy {BASEFILE} {BACKUPFILE}')
                         elif platform == 'linux':
                             os.system(f'cp {BASEFILE} {BACKUPFILE}')
                         logo()
-                        cprint(f'Backup is created!\n', 'green', attrs=['bold'])
+                        cprint(f'Backup is created to {BACKUPDIR}!\n', 'green', attrs=['bold'])
                     elif i == '3':
                         file = open(BASEFILE, 'rb').read()
                         data = decrypt(file, key).decode('utf-8')
@@ -164,7 +163,6 @@ def job(key):
                         else:
                             os.system('nano tmp && del tmp')
                         logo()
-                        cprint('Done!\n', 'green', attrs=['bold'])
                     elif i == '2':
                         file = open(BASEFILE, 'rb').read()
                         data = decrypt(file, key)
@@ -209,7 +207,7 @@ def job(key):
                         data = bytes(d + '{0:<24} {1:>24} {2:>24} {3:>8}\n'.format(l, p, s, dn), encoding='UTF-8')
                         baf(data, key)
                         logo()
-                        cprint('Data recorded!\n', 'green', attrs=['bold'])
+                        cprint(f'User \'{l}\' with your password added!\n', 'green', attrs=['bold'])
                         menu()
                         break
                     elif i == 'g':
@@ -222,7 +220,7 @@ def job(key):
                                     data = bytes(d + '{0:<24} {1:>24} {2:>24} {3:>8}\n'.format(l, p, s, dn), encoding='UTF-8')
                                     baf(data, key)
                                     logo()
-                                    cprint('Data recorded!\n', 'green', attrs=['bold'])
+                                    cprint(f'Generated password \'{p}\' for user \'{l}\' !\n', 'green', attrs=['bold'])
                                     menu()
                                     break
                                 else:
@@ -274,7 +272,7 @@ def main():
         job(key)
     else:
         while True:
-            cprint('New base will be create!', 'red', attrs=['bold'])
+            cprint(f'New base will be create to {BASEDIR}!', 'red', attrs=['bold'])
             key = getkey()
             confirm = bytes(getpass('Confirm Password:> '), encoding="UTF-8")
             if key == confirm:
