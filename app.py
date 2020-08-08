@@ -125,6 +125,10 @@ def job(key):
         https://github.com/m80b33\n
                                    2020\n''', 'blue')
             sleep(5)
+            if platform == 'win32':
+                os.system('cls')
+            elif platform == 'linux':
+                os.system('clear')
             break
         elif k == '3':
             logo()
@@ -260,13 +264,14 @@ def job(key):
 # Main
 def main():
     if os.path.exists(BASEFILE):
-        try:
-            key = getkey()
-            file = open(BASEFILE, 'rb').read()
-            decrypt(file, key).decode('utf-8')
-        except:
-            cprint('Oops, try again!', 'red')
-            main()
+        while True:
+            try:
+                key = getkey()
+                file = open(BASEFILE, 'rb').read()
+                decrypt(file, key).decode('utf-8')
+                break
+            except:
+                cprint('Oops, try again!', 'red')
         logo()
         menu()
         job(key)
