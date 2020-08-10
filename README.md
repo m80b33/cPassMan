@@ -5,7 +5,7 @@ Console Password Manager
 
  - v0.31
 
-    - should work on linux (but not tested yet)
+    - work on linux
 
 
  - v0.3
