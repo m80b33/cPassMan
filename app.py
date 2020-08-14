@@ -34,6 +34,7 @@ if not os.path.exists(BACKUPDIR):
 
 BACKUPFILE = os.path.join(BACKUPDIR, 'base{}'.format(datetime.now().strftime("%H%M%d%m%y")))
 
+
 #Logo
 def logo():
     sleep(0.5)
@@ -42,11 +43,9 @@ def logo():
     elif platform == 'linux':
         os.system('clear')
     cprint(r'''
-
 █▀▀ ▒█▀▀█ █▀▀█ █▀▀ █▀▀ ▒█▀▄▀█ █▀▀█ █▀▀▄
 █░░ ▒█▄▄█ █▄▄█ ▀▀█ ▀▀█ ▒█▒█▒█ █▄▄█ █░░█
 ▀▀▀ ▒█░░░ ▀░░▀ ▀▀▀ ▀▀▀ ▒█░░▒█ ▀░░▀ ▀░░▀
-
     ''', 'blue')
 
 
@@ -68,6 +67,20 @@ def menu():
     cprint(':> Add New Entry (2)', 'yellow')
     cprint(':> Options (3)', 'yellow')
     cprint(':> Exit (4)\n', 'yellow')
+
+
+def logout():
+    logo()
+    cprint('''        cPassMan v1.3
+console Password manager
+https://github.com/m80b33\n
+                           2020\n''', 'blue')
+    sleep(5)
+    os.system('clear')
+
+
+def ic_error():
+    cprint('\nInvalid choice, try again!\n', 'red')
 
 
 # New password generation
@@ -119,16 +132,7 @@ def job(key):
     while True:
         k = input(':> ')
         if k == '4':
-            logo()
-            cprint('''        cPassMan v1.3
-        console Password manager
-        https://github.com/m80b33\n
-                                   2020\n''', 'blue')
-            sleep(5)
-            if platform == 'win32':
-                os.system('cls')
-            elif platform == 'linux':
-                os.system('clear')
+            logout()
             break
         elif k == '3':
             logo()
@@ -181,9 +185,9 @@ def job(key):
                                     baf(data, key)
                                     break
                                 else:
-                                    print('New Super Password not confirmed!')
+                                    cprint('New Super Password not confirmed!', 'red')
                             else:
-                                print('Wrong Old Super Password!')
+                                cprint('Wrong Old Super Password!', 'red')
                         logo()
                         cprint('Super Password successfully changed!\n', 'green', attrs=['bold'])
                     elif i == '1':
@@ -191,7 +195,7 @@ def job(key):
                         menu()
                         break
                     else:
-                        cprint('\nInvalid choice!', 'red')
+                        ic_error()
             except:
                  cprint('\nWrong Super Password!\n', 'red')
                  main()
@@ -215,7 +219,7 @@ def job(key):
                         menu()
                         break
                     elif i == 'g':
-                        print('Enter the password length(24 or less):> ')
+                        print('Enter the password length (24 or less):> ')
                         while True:
                             length = input(':> ' )
                             try:
@@ -224,16 +228,16 @@ def job(key):
                                     data = bytes(d + '{0:<24} {1:>24} {2:>24} {3:>8}\n'.format(l, p, s, dn), encoding='UTF-8')
                                     baf(data, key)
                                     logo()
-                                    cprint(f'Generated password \'{p}\' for user \'{l}\' !\n', 'green', attrs=['bold'])
+                                    cprint(f'Password generated, user \'{l}\ added'!\n', 'green', attrs=['bold'])
                                     menu()
                                     break
                                 else:
-                                    cprint('\nInvalid password length!\n', 'red')
+                                    cprint('\nInvalid password length (should be 24 or less)!\n', 'red')
                             except:
-                                cprint('\nInvalid password length!\n', 'red')
+                                cprint('\nInvalid password length (should be 24 or less)!\n', 'red')
                         break
                     else:
-                        cprint('\nInvalid choice, try again!\n', 'red')
+                        ic_error()
             except:
                 cprint('\nWrong Super Password!\n', 'red')
                 main()
@@ -252,45 +256,62 @@ def job(key):
                         menu()
                         break
                     else:
-                        cprint('\nInvalid choice, try again!\n', 'red')
+                        ic_error()
             except:
                 cprint('\nError!\n', 'red')
                 main()
                 break
         else:
-            cprint('\nInvalid choice, try again!\n', 'red')
+            ic_error()
 
 
 # Main
 def main():
-    if os.path.exists(BASEFILE):
-        while True:
-            try:
-                key = getkey()
-                file = open(BASEFILE, 'rb').read()
-                decrypt(file, key).decode('utf-8')
-                break
-            except:
-                cprint('Oops, try again!', 'red')
-        logo()
-        menu()
-        job(key)
-    else:
-        while True:
-            cprint(f'New base will be create to {BASEDIR}!', 'red', attrs=['bold'])
-            key = getkey()
-            confirm = bytes(getpass('Confirm Password:> '), encoding="UTF-8")
-            if key == confirm:
-                progress()
-                data = bytes('{3}{0:^24} {1:^24} {2:^24} {5:^8} {3}{4:-<24} {4:-<24} {4:-<24} {4:-<8} {3}'.format('Login', 'Password', 'Service', '\n', '-', 'Data'), encoding="UTF-8")
-                baf(data, key)
-                logo()
-                cprint('\nPasswords database successfully created and encrypted with Super Password\n', 'green', attrs=['bold'])
-                menu()
-                job(key)
-                break
-            else:
-                cprint('Oops, try again!', 'red')
+
+    cprint(':> Login (1)', 'yellow')
+    cprint(':> Exit (4)\n', 'yellow')
+
+    while True:
+        hello = input(':> ')
+        if hello == '1':
+            while True:
+                if os.path.exists(BASEFILE):
+                    while True:
+                        try:
+                            logo()
+                            key = getkey()
+                            file = open(BASEFILE, 'rb').read()
+                            decrypt(file, key).decode('utf-8')
+                            break
+                        except:
+                            cprint('Oops, try again!', 'red')
+                    logo()
+                    menu()
+                    job(key)
+                    break
+                else:
+                    while True:
+                        cprint(f'New base will be create to {BASEDIR}!', 'red', attrs=['bold'])
+                        key = getkey()
+                        confirm = bytes(getpass('Confirm Password:> '), encoding="UTF-8")
+                        if key == confirm:
+                            progress()
+                            data = bytes('{3}{0:^24} {1:^24} {2:^24} {5:^8} {3}{4:-<24} {4:-<24} {4:-<24} {4:-<8} {3}'.format('Login', 'Password', 'Service', '\n', '-', 'Data'), encoding="UTF-8")
+                            baf(data, key)
+                            logo()
+                            cprint('\nPasswords database successfully created and encrypted with Super Password\n', 'green', attrs=['bold'])
+                            menu()
+                            job(key)
+                            break
+                        else:
+                            cprint('Oops, try again!', 'red')
+            break
+        elif hello == '4':
+            logout()
+            break
+        else:
+            ic_error()
+
 
 
 if __name__ == '__main__':
