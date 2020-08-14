@@ -14,7 +14,6 @@ from Crypto.Cipher import AES
 from Crypto.Hash import SHA256
 
 
-
 # Windows title
 if platform == 'win32':
     os.system('title ' + 'cPassMan')
@@ -76,7 +75,11 @@ console Password manager
 https://github.com/m80b33\n
                            2020\n''', 'blue')
     sleep(5)
-    os.system('clear')
+    
+    if platform == 'win32':
+        os.system('cls')
+    elif platform == 'linux':
+        os.system('clear')
 
 
 def ic_error():
@@ -228,7 +231,7 @@ def job(key):
                                     data = bytes(d + '{0:<24} {1:>24} {2:>24} {3:>8}\n'.format(l, p, s, dn), encoding='UTF-8')
                                     baf(data, key)
                                     logo()
-                                    cprint(f'Password generated, user \'{l}\ added'!\n', 'green', attrs=['bold'])
+                                    cprint(f'Password generated, user \'{l}\ added!\n', 'green', attrs=['bold'])
                                     menu()
                                     break
                                 else:
@@ -311,7 +314,6 @@ def main():
             break
         else:
             ic_error()
-
 
 
 if __name__ == '__main__':
